@@ -1,0 +1,114 @@
+<template>
+    <el-card class="product-item" shadow="hover">
+        <router-link :to="{ name: 'ProductDetail', params: { id: product.id } }">
+            <img v-if="product.image" :src="product.image" class="product-image" :alt="product.name" />
+            <div v-else class="no-image">暂无图片</div>
+            <div class="title">{{ product.name }}</div>
+        </router-link>
+        <div class="info">
+            <span class="product-type">{{ product.type }}</span>
+            <span class="product-price">￥{{ product.price }}</span>
+            <span class="product-stock">库存：{{ product.stock }}</span>
+        </div>
+        <div class="actions" v-if="isProductAuthor(product)">
+            <el-button size="small" type="primary" text @click="handleEdit(product)">编辑</el-button>
+            <el-popconfirm title="确认上架/下架该商品?" @confirm="handleUpdateStatus(product)">
+                <template #reference>
+                    <el-button size="small" type="warning" text>
+                        {{ product.status === 1 ? '下架' : '上架' }}
+                    </el-button>
+                </template>
+            </el-popconfirm>
+            <!-- <el-popconfirm title="确定删除此产品吗？" @confirm="handleDelete(product.id)">
+                <template #reference>
+                    <el-button size="small" type="danger" text>删除</el-button>
+                </template>
+            </el-popconfirm> -->
+        </div>
+    </el-card>
+</template>
+
+<script setup>
+import { defineProps, defineEmits } from 'vue';
+
+const props = defineProps({
+    product: {
+        type: Object,
+        required: true
+    },
+    isProductAuthor: {
+        type: Function,
+        required: true
+    }
+});
+
+const emit = defineEmits(['edit', 'updateStatus', 'delete']);
+
+const handleEdit = (product) => {
+    emit('edit', product);
+};
+
+const handleUpdateStatus = (product) => {
+    emit('updateStatus', product);
+};
+
+const handleDelete = (id) => {
+    emit('delete', id);
+};
+</script>
+
+<style scoped>
+.product-item {
+    margin-bottom: 20px;
+    transition: box-shadow 0.3s ease;
+}
+
+.product-item:hover {
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.product-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+.no-image {
+    width: 100%;
+    height: 150px;
+    background: #f5f7fa;
+    line-height: 150px;
+    text-align: center;
+    color: #909399;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.info {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.info span {
+    margin-right: 5px;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+</style>

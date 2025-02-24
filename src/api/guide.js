@@ -77,7 +77,12 @@ export function unfavoriteGuide(guideId) {
 
 // 获取个性化推荐攻略
 export function getRecommendedGuides(params) {
-    return axios.get(`${baseURL}/recommended`, { params }); // 传递分页参数
+    return axios.get(`${baseURL}/recommended`, {
+        params,
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}` // 添加 Authorization 头
+        }
+    });
 }
 
 // 获取热门攻略
@@ -93,4 +98,13 @@ export function getLatestGuides(params) {
 // 搜索攻略
 export function searchGuides(params) {
     return axios.get(`${baseURL}`, { params });
+}
+
+// 记录攻略浏览
+export function recordGuideView(userId, guideId) {
+    return axios.post(`${baseURL}/${guideId}/view`, { userId }, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    });
 }

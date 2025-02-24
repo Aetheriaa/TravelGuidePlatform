@@ -49,7 +49,7 @@
 
 <script setup>
 import { ref, onMounted, computed, watch, nextTick } from 'vue';
-import { getGuideDetail, likeGuide, unlikeGuide, favoriteGuide, unfavoriteGuide, deleteGuide } from '@/api/guide';
+import { getGuideDetail, likeGuide, unlikeGuide, favoriteGuide, unfavoriteGuide, deleteGuide, recordGuideView } from '@/api/guide';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '@/stores/user';
@@ -75,6 +75,10 @@ const fetchGuideDetail = () => {
             // 将字符串标签分割为数组
             if (guide.value.tags && typeof guide.value.tags === 'string') {
                 guide.value.tags = guide.value.tags.split(',');
+            }
+            // 在这里记录浏览历史
+            if (userStore.isLoggedIn) {
+                recordGuideView(userStore.currentUser.id, guide.value.id);
             }
             fetchComments(); // 在这里获取评论
         })

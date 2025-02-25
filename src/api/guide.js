@@ -9,7 +9,11 @@ export function getGuideList(params) {
 
 // 获取攻略详情
 export function getGuideDetail(id) {
-    return axios.get(`${baseURL}/${id}`);
+    return axios.get(`${baseURL}/${id}`, {
+         headers: {
+             Authorization: `Bearer ${localStorage.getItem('token')}`
+         }
+    });
 }
 
 // 发布攻略

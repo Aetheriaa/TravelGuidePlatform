@@ -72,6 +72,8 @@ const fetchGuideDetail = () => {
             guide.value = response.data.data;
             isLiked.value = response.data.data.liked;
             isFavorited.value = response.data.data.favorited;
+            // console.log(isLiked.value)
+            // console.log(isFavorited.value)
             // 将字符串标签分割为数组
             if (guide.value.tags && typeof guide.value.tags === 'string') {
                 guide.value.tags = guide.value.tags.split(',');

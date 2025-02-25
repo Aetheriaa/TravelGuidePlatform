@@ -65,24 +65,44 @@ const isFavorited = ref(false);
 const userStore = useUserStore();
 const comments = ref([]);
 const newCommentContent = ref('');
-// 将 fetchGuideDetail 函数的定义放在 watch 之前
+
+// 构建评论树的函数
+function buildCommentTree(comments) {
+    const commentMap = {};
+    const tree = [];
+
+    comments.forEach(comment => {
+        commentMap[comment.id] = { ...comment, replies: [] };
+    });
+
+    comments.forEach(comment => {
+        if (comment.parentCommentId) {
+            const parent = commentMap[comment.parentCommentId];
+            if (parent) {
+                parent.replies.push(commentMap[comment.id]);
+            }
+        } else {
+            tree.push(commentMap[comment.id]);
+        }
+    });
+
+    return tree;
+}
+
+
 const fetchGuideDetail = () => {
     getGuideDetail(route.params.id)
         .then(response => {
             guide.value = response.data.data;
             isLiked.value = response.data.data.liked;
             isFavorited.value = response.data.data.favorited;
-            // console.log(isLiked.value)
-            // console.log(isFavorited.value)
-            // 将字符串标签分割为数组
             if (guide.value.tags && typeof guide.value.tags === 'string') {
                 guide.value.tags = guide.value.tags.split(',');
             }
-            // 在这里记录浏览历史
             if (userStore.isLoggedIn) {
                 recordGuideView(userStore.currentUser.id, guide.value.id);
             }
-            fetchComments(); // 在这里获取评论
+            fetchComments(); // 获取评论
         })
         .catch(error => {
             console.error("Error fetching guide detail:", error);
@@ -90,35 +110,33 @@ const fetchGuideDetail = () => {
         });
 };
 
-// 
 const fetchComments = () => {
     getCommentsByGuideId(route.params.id)
         .then(res => {
-            comments.value = res.data.data;
+            // 获取评论后，构建评论树
+            comments.value = buildCommentTree(res.data.data);
         })
         .catch(err => {
             console.log(err);
             ElMessage.error('Failed to load comments');
         });
 };
-// 计算属性：判断当前用户是否是攻略作者
+
 const isAuthor = computed(() => {
     return userStore.isLoggedIn && userStore.currentUser && guide.value && userStore.currentUser.id === guide.value.userId
 });
 
-
-// 监听路由参数变化
 watch(
     () => route.params.id,
     (newId) => {
         if (newId) {
-            fetchGuideDetail(); // 重新获取攻略详情和评论列表
+            fetchGuideDetail();
         }
     },
-    { immediate: true } // 立即执行一次
+    { immediate: true }
 );
+
 const scrollToComment = (commentId) => {
-    // 使用 nextTick 确保 DOM 更新完成后再执行滚动操作
     nextTick(() => {
         const commentElement = document.querySelector(`.comment[data-id="${commentId}"]`);
         if (commentElement) {
@@ -127,7 +145,6 @@ const scrollToComment = (commentId) => {
     });
 };
 
-// 点赞/取消点赞 (代码不变)
 const toggleLike = async () => {
     if (!userStore.isLoggedIn) {
         ElMessage.warning("请先登录")
@@ -144,7 +161,7 @@ const toggleLike = async () => {
             guide.value.likeCount++;
             ElMessage.success('点赞成功')
         }
-        isLiked.value = !isLiked.value; // 更新点赞状态
+        isLiked.value = !isLiked.value;
 
     } catch (error) {
         console.log(error);
@@ -192,18 +209,17 @@ const submitComment = () => {
     const data = {
         guideId: guide.value.id,
         content: newCommentContent.value,
-        parentCommentId: null
+        parentCommentId: null  // 顶层评论的 parentCommentId 为 null
     };
     createComment(data).then(() => {
         ElMessage.success('评论成功');
         newCommentContent.value = '';
-        fetchComments(); // 刷新评论列表
+        fetchComments(); // 刷新评论列表, 会自动构建树
     }).catch(error => {
         console.error("Error creating comment:", error);
         ElMessage.error('Failed to create comment');
     });
 };
-
 </script>
 
 <style scoped>

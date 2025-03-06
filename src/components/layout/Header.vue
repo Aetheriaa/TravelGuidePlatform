@@ -46,6 +46,20 @@
                             <el-dropdown-item>
                                 <router-link :to="{ name: 'OrderList' }" class="dropdown-link">我的订单</router-link>
                             </el-dropdown-item>
+                            <el-dropdown-item>
+                                <router-link :to="{ name: 'UserGuideHistory' }" class="dropdown-link">历史记录</router-link>
+                            </el-dropdown-item>
+                            <el-dropdown-item>
+                                <router-link :to="{ name: 'UserLikedGuides' }" class="dropdown-link">我的点赞</router-link>
+                            </el-dropdown-item>
+                            <el-dropdown-item>
+                                <router-link :to="{ name: 'UserFavoriteGuides' }"
+                                    class="dropdown-link">我的收藏</router-link>
+                            </el-dropdown-item>
+                            <el-dropdown-item>
+                                <router-link :to="{ name: 'MessageList' }"
+                                    class="dropdown-link">我的消息</router-link>
+                            </el-dropdown-item>
                             <el-dropdown-item @click="handleLogout">退出登录</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>

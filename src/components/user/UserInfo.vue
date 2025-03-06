@@ -1,12 +1,13 @@
 <template>
-    <div class="user-info-page">
+    <div v-if="user" class="user-info-page">
         <Header />
         <div class="user-info-container">
             <el-card class="user-info-card" shadow="hover">
-                <div v-if="user" class="user-details">
+                <div class="user-details">
                     <h2 class="user-info-title">
                         <i class="el-icon-user-solid"></i> 个人信息
                     </h2>
+                    <!-- 头像和基本信息 -->
                     <div class="user-avatar-container">
                         <el-avatar :size="120" :src="user.avatar || defaultAvatar" class="user-avatar">
                             <img src="../assets/default_avatar.jpg" />
@@ -41,17 +42,38 @@
                         </el-descriptions-item>
 
                     </el-descriptions>
-
+                    <!-- 新增：关注数和粉丝数 -->
+                    <div class="user-stats">
+                        <div class="stat-item">
+                            <span>关注数：</span>
+                            <router-link :to="{ name: 'FollowingList' }">
+                                <span>{{ followingCount }}</span>
+                            </router-link>
+                        </div>
+                        <div class="stat-item">
+                            <span>粉丝数：</span>
+                            <router-link :to="{ name: 'FollowerList' }">
+                                <span>{{ followerCount }}</span>
+                            </router-link>
+                        </div>
+                    </div>
                     <div class="user-actions">
                         <router-link to="/userupdate">
                             <el-button type="primary" icon="el-icon-edit">修改信息</el-button>
                         </router-link>
+                        <router-link to="/user/guide-history">
+                            <el-button type="primary">浏览历史</el-button>
+                        </router-link>
+                        <router-link to="/user/liked-guides">
+                            <el-button type="primary">点赞列表</el-button>
+                        </router-link>
+                        <router-link to="/user/favorite-guides">
+                            <el-button type="primary">收藏列表</el-button>
+                        </router-link>
                         <el-button type="danger" icon="el-icon-delete" @click="handleDeleteAccount">注销账户</el-button>
                     </div>
                 </div>
-                <div v-else class="loading">
-                    <el-skeleton :rows="6" animated />
-                </div>
+
             </el-card>
         </div>
         <Footer />
@@ -66,13 +88,20 @@ import Footer from '@/components/layout/Footer.vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import defaultAvatar from '@/assets/default_avatar.jpg'
 import { useRouter } from 'vue-router'
-
+import { getUserInfoById, getFollowingCount, getFollowerCount } from '@/api/user';
 const userStore = useUserStore();
 const router = useRouter();
 
+const followingCount = ref(0); // 关注数
+const followerCount = ref(0);  // 粉丝数
+
 onMounted(() => {
     if (userStore.isLoggedIn) {
-        userStore.fetchUserInfo(); // 获取用户信息
+        userStore.fetchUserInfo().then(() => {
+            // 获取当前用户信息成功后，再获取关注数和粉丝数
+            fetchFollowingCount();
+            fetchFollowerCount();
+        });
     } else {
         router.push('/login'); //未登录就跳转到登录
     }
@@ -114,6 +143,31 @@ const handleDeleteAccount = () => {
             });
         });
 };
+
+// 获取关注数
+const fetchFollowingCount = () => {
+    if (!userStore.isLoggedIn) return;
+    getFollowingCount(userStore.currentUser.id)
+        .then(response => {
+            followingCount.value = response.data.data;
+        })
+        .catch(error => {
+            console.error("Error fetching following count:", error);
+        });
+};
+
+// 获取粉丝数
+const fetchFollowerCount = () => {
+    if (!userStore.isLoggedIn) return;
+    getFollowerCount(userStore.currentUser.id)
+        .then(response => {
+            followerCount.value = response.data.data;
+        })
+        .catch(error => {
+            console.error("Error fetching follower count:", error);
+        });
+};
+
 
 </script>
 
@@ -185,5 +239,30 @@ const handleDeleteAccount = () => {
 .loading {
     padding: 20px;
     text-align: center;
+}
+
+.user-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+.user-stats .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.user-stats .stat-item span:first-child {
+    font-weight: bold;
+    color: #333;
+}
+
+.user-stats .stat-item span:last-child {
+    font-size: 20px;
+    color: #409EFF;
 }
 </style>

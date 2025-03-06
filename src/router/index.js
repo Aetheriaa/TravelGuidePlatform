@@ -28,6 +28,9 @@ import ProductUpdateView from '@/views/product/ProductUpdateView.vue';
 import OrderListView from '@/views/order/OrderListView.vue';
 import OrderDetailView from '@/views/order/OrderDetailView.vue';
 
+import FollowingList from '@/components/user/FollowingList.vue';
+import FollowerList from '@/components/user/FollowerList.vue';
+
 const routes = [
     {
         path: '/register',
@@ -157,6 +160,57 @@ const routes = [
         path: '/search',
         name: 'SearchResult',
         component: () => import('@/views/search/SearchResultView.vue') // 搜索结果页
+    },
+
+    {
+        path: '/user/guide-history',
+        name: 'UserGuideHistory',
+        component: () => import('@/views/user/UserGuideHistoryView.vue'), // 假设的路径
+        meta: { requiresAuth: true } // 需要登录
+    },
+    {
+        path: '/user/liked-guides',
+        name: 'UserLikedGuides',
+        component: () => import('@/views/user/UserLikedGuidesView.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/user/favorite-guides',
+        name: 'UserFavoriteGuides',
+        component: () => import('@/views/user/UserFavoriteGuidesView.vue'),
+        meta: { requiresAuth: true }
+    },
+
+    {
+        path: '/messages/:userId', // 注意这里的 userId 是对话对方的 userId
+        name: 'MessageDetail',
+        component: () => import('@/components/message/MessageDetail.vue'),
+        props: true,
+        meta: { requiresAuth: true } // 确保用户已登录
+    },
+    {
+        path: '/messages',
+        name: 'MessageList',
+        component: () => import('@/components/message/MessageList.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/user/:userId', // 路由路径，:userId 是一个动态参数
+        name: 'UserProfile',    // 路由名称
+        component: () => import('@/components/user/UserProfile.vue'), // 对应的组件
+        props: true           // 将路由参数作为 props 传递给组件
+    },
+    {
+        path: '/user/following', // 当前用户的关注列表
+        name: 'FollowingList',
+        component: FollowingList,
+        meta: { requiresAuth: true } // 需要登录
+    },
+    {
+        path: '/user/followers', // 当前用户的粉丝列表
+        name: 'FollowerList',
+        component: FollowerList,
+        meta: { requiresAuth: true } // 需要登录
     },
 ];
 

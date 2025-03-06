@@ -7,9 +7,17 @@
 
         <h1>{{ guide.title }}</h1>
         <div class="author-info">
-            <span>作者：{{ guide.authorName }}</span>
-            <img v-if="guide.authorAvatar" :src="guide.authorAvatar" alt="作者头像" class="avatar">
+            <!-- 1. 添加到作者个人主页的链接 -->
+            <router-link :to="{ name: 'UserProfile', params: { userId: guide.userId } }">
+                <span>作者：{{ guide.authorName }}</span>
+                <img v-if="guide.authorAvatar" :src="guide.authorAvatar" alt="作者头像" class="avatar">
+            </router-link>
         </div>
+        <el-button v-if="!isMe" size="small" :type="isFollowing ? 'info' : 'primary'" @click="toggleFollow"
+            class="follow-button">
+            {{ isFollowing ? '取消关注' : '关注' }}
+        </el-button>
+
         <div class="guide-info">
             <span>发布时间：{{ formatDate(guide.createTime) }}</span>
             <span>更新时间：{{ formatDate(guide.updateTime) }}</span>
@@ -56,6 +64,8 @@ import { useUserStore } from '@/stores/user';
 import { formatDate } from '@/utils/date';
 import CommentList from '@/components/comment/CommentList.vue';
 import { getCommentsByGuideId, createComment } from '@/api/comment';
+// 导入用户相关的 API
+import { followUser, unfollowUser, checkFollowing } from '@/api/user';
 
 const route = useRoute();
 const router = useRouter();
@@ -65,6 +75,15 @@ const isFavorited = ref(false);
 const userStore = useUserStore();
 const comments = ref([]);
 const newCommentContent = ref('');
+
+// 是否已关注该作者
+const isFollowing = ref(false);
+
+
+// 计算属性：判断当前用户是否是正在查看的攻略的作者
+const isMe = computed(() => {
+    return userStore.isLoggedIn && userStore.currentUser && guide.value && userStore.currentUser.id === guide.value.userId;
+});
 
 // 构建评论树的函数
 function buildCommentTree(comments) {
@@ -101,7 +120,8 @@ const fetchGuideDetail = () => {
             }
             if (userStore.isLoggedIn) {
                 recordGuideView(userStore.currentUser.id, guide.value.id);
-            }
+            } 
+            checkIsFollowing();
             fetchComments(); // 获取评论
         })
         .catch(error => {
@@ -131,6 +151,7 @@ watch(
     (newId) => {
         if (newId) {
             fetchGuideDetail();
+            
         }
     },
     { immediate: true }
@@ -219,6 +240,38 @@ const submitComment = () => {
         console.error("Error creating comment:", error);
         ElMessage.error('Failed to create comment');
     });
+};
+
+// 检查是否已关注
+const checkIsFollowing = async () => {
+    try {
+        const response = await checkFollowing(guide.value.userId);
+        isFollowing.value = response.data.data;
+    } catch (error) {
+        console.error('Error checking follow status:', error);
+    }
+};
+
+// 关注/取消关注
+const toggleFollow = async () => {
+    if (!userStore.isLoggedIn) {
+        ElMessage.warning('请先登录');
+        router.push('/login');
+        return;
+    }
+    try {
+        if (isFollowing.value) {
+            await unfollowUser(guide.value.userId);
+            ElMessage.success('已取消关注');
+        } else {
+            await followUser(guide.value.userId);
+            ElMessage.success('关注成功');
+        }
+        isFollowing.value = !isFollowing.value; // 更新关注状态
+    } catch (error) {
+        console.error("Error toggling follow:", error);
+        ElMessage.error('操作失败');
+    }
 };
 </script>
 

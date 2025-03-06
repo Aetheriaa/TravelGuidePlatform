@@ -10,9 +10,9 @@ export function getGuideList(params) {
 // 获取攻略详情
 export function getGuideDetail(id) {
     return axios.get(`${baseURL}/${id}`, {
-         headers: {
-             Authorization: `Bearer ${localStorage.getItem('token')}`
-         }
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
     });
 }
 
@@ -110,5 +110,38 @@ export function recordGuideView(userId, guideId) {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
         }
+    });
+}
+
+// 获取用户浏览历史
+export function getUserGuideHistory({ userId, page, pageSize }) {
+    return axios.get(`${baseURL}/history`, { //假设baseURL已定义
+        params: {
+            page,
+            pageSize,
+        },
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+    });
+}
+
+// 获取用户喜欢的攻略
+export function getUserLikedGuides(params) {
+    return axios.get(`/api/v1/guides/liked`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        },
+        params
+    });
+}
+
+// 获取用户收藏的攻略
+export function getUserFavoritedGuides(params) {
+    return axios.get(`/api/v1/guides/favorited`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        },
+        params
     });
 }

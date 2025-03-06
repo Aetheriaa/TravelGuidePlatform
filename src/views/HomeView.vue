@@ -68,7 +68,6 @@ import { ref, onMounted, watch, computed } from 'vue';
 import Header from '@/components/layout/Header.vue';
 import Banner from '@/components/layout/Banner.vue';
 import GuideCard from '@/components/guide/GuideCard.vue';
-import CategoryNavigation from '@/components/layout/CategoryNavigation.vue';
 import Footer from '@/components/layout/Footer.vue';
 import {
     getRecommendedGuides,

@@ -23,7 +23,8 @@
             <span>更新时间：{{ formatDate(guide.updateTime) }}</span>
             <span>浏览量：{{ guide.viewCount }}</span>
             <span>点赞数：{{ guide.likeCount }}</span>
-            <span>标签：{{ guide.tags }}</span>
+            <!-- Use the computed property here -->
+            <span>标签：{{ tagsString }}</span>
         </div>
         <div class="guide-content" v-html="guide.content" style="white-space: pre-wrap;"></div>
         <el-divider></el-divider>
@@ -108,13 +109,20 @@ function buildCommentTree(comments) {
     return tree;
 }
 
+// Computed property for the tags string
+const tagsString = computed(() => {
+  return guide.value && guide.value.tags ? guide.value.tags.join(', ') : '';
+});
+
 
 const fetchGuideDetail = () => {
     getGuideDetail(route.params.id)
         .then(response => {
             guide.value = response.data.data;
+            console.log(guide.tags);
             isLiked.value = response.data.data.liked;
             isFavorited.value = response.data.data.favorited;
+            //transform string to array, if needed
             if (guide.value.tags && typeof guide.value.tags === 'string') {
                 guide.value.tags = guide.value.tags.split(',');
             }
@@ -323,6 +331,12 @@ const toggleFollow = async () => {
     font-size: 0.9em;
     color: #888;
     margin-bottom: 1em;
+    display: flex; /* 使用 Flexbox 布局 */
+    justify-content: space-between; /* 各个 span 元素之间均匀间隔 */
+    flex-wrap: wrap;  /*当空间不足时换行*/
+}
+.guide-info > span{
+    margin: 0 5px; /*添加水平间距*/
 }
 
 .guide-content {

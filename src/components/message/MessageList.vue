@@ -1,120 +1,125 @@
 <template>
+  <Header />
     <div class="message-list">
-        <h2>私信列表</h2>
-        <div v-if="loading">加载中...</div>
-        <div v-else-if="recentContacts.length > 0">
-            <div v-for="contact in recentContacts" :key="contact.otherUserId" class="contact-item">
-                <router-link :to="{ name: 'MessageDetail', params: { userId: contact.otherUserId } }">
-                    <img :src="contact.otherUserAvatar || defaultAvatar" alt="头像" class="avatar">
-                    <div class="contact-info">
-                        <div class="username">{{ contact.otherUsername }}</div>
-                        <div class="last-message">
-                            {{ contact.content }}
-                        </div>
-                        <div class="timestamp">{{ formatDate(contact.sendTime) }}</div>
-                    </div>
-                    <div v-if="!contact.isRead" class="unread-badge">未读</div>
-                </router-link>
+      <h2>私信列表</h2>
+      <el-skeleton :loading="loading" :rows="5" animated>
+        <template #default>
+          <el-empty v-if="recentContacts.length === 0" description="暂无私信" />
+  
+          <el-card
+            v-for="contact in recentContacts"
+            :key="contact.otherUserId"
+            class="contact-item"
+            shadow="hover"
+            @click="goToMessageDetail(contact)"
+          >
+            <div class="contact-content">
+              <el-avatar :src="contact.otherUserAvatar || defaultAvatar" :size="50" />
+              <div class="contact-info">
+                <div class="username">{{ contact.otherUsername }}</div>
+                <div class="last-message">{{ contact.content }}</div>
+                <div class="timestamp">{{ formatDate(contact.sendTime) }}</div>
+              </div>
+              <el-badge v-if="!contact.isRead" :is-dot="true" class="unread-badge" />
             </div>
-        </div>
-        <div v-else>
-            <p>暂无私信</p>
-        </div>
+          </el-card>
+        </template>
+      </el-skeleton>
     </div>
+  <Footer />  
 </template>
-
-<script setup>
-import { ref, onMounted, computed } from 'vue';
-import { getRecentContacts } from '@/api/message'; // 导入 API
-import { formatDate } from '@/utils/date'; // 导入日期格式化函数
-import defaultAvatar from '@/assets/default_avatar.jpg'; // 导入默认头像
-import { useUserStore } from '@/stores/user'
-const recentContacts = ref([]);
-const loading = ref(true);
-const userStore = useUserStore();
-const currentUserId = computed(() => userStore.currentUser?.id);  //计算属性
-
-
-onMounted(() => {
+  
+  <script setup>
+  import { ref, onMounted, computed } from 'vue';
+  import { getRecentContacts } from '@/api/message';
+  import { formatDate } from '@/utils/date';
+  import defaultAvatar from '@/assets/default_avatar.jpg';
+  import { useUserStore } from '@/stores/user';
+  import { useRouter } from 'vue-router';
+  import { ElMessage, ElSkeleton, ElEmpty, ElCard, ElAvatar, ElBadge } from 'element-plus'; // 引入 Element Plus 组件
+  
+  const recentContacts = ref([]);
+  const loading = ref(true);
+  const userStore = useUserStore();
+  const router = useRouter();
+  const currentUserId = computed(() => userStore.currentUser?.id);
+  
+  onMounted(() => {
     fetchRecentContacts();
-});
-
-const fetchRecentContacts = () => {
-    getRecentContacts(currentUserId)
-        .then(response => {
-            recentContacts.value = response.data.data;
-            console.log(recentContacts.value);
-        })
-        .catch(error => {
-            console.error("Error fetching recent contacts:", error);
-        })
-        .finally(() => {
-            loading.value = false;
-        });
-};
-</script>
-
-<style scoped>
-/* 添加样式 */
-.message-list {
+  });
+  
+  const fetchRecentContacts = () => {
+    getRecentContacts(currentUserId.value)  //直接 .value
+      .then(response => {
+        recentContacts.value = response.data.data;
+      })
+      .catch(error => {
+        console.error("Error fetching recent contacts:", error);
+        ElMessage.error('获取私信列表失败');
+      })
+      .finally(() => {
+        loading.value = false;
+      });
+  };
+  
+  const goToMessageDetail = (contact) => {
+    router.push({ name: 'MessageDetail', params: { userId: contact.otherUserId } });
+  };
+  </script>
+  
+  <style scoped>
+  .message-list {
     padding: 20px;
-}
-
-.contact-item {
+  }
+  
+  .contact-item {
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s; /* 添加过渡效果 */
+  }
+  
+  .contact-item:hover {
+    background-color: #f0f9ff; /* 鼠标悬停时背景颜色 */
+  }
+  
+  .contact-content {
     display: flex;
     align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-    text-decoration: none;
-    color: inherit;
-    /* 移除 router-link 的默认样式 */
-}
-
-.contact-item:hover {
-    background-color: #f5f5f5;
-}
-
-.avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
-}
-
-.contact-info {
+  }
+  
+  .contact-info {
     flex-grow: 1;
-}
-
-.username {
+    margin-left: 15px;
+  }
+  
+  .username {
     font-weight: bold;
     margin-bottom: 5px;
-}
-
-.last-message {
+  }
+  
+  .last-message {
     font-size: 14px;
-    color: #999;
+    color: #666;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 200px;
-    /* 或者你希望的最大宽度 */
-}
-
-.timestamp {
+    max-width: 250px; /* 限制最大宽度 */
+  }
+  
+  .timestamp {
     font-size: 12px;
     color: #999;
-}
-
-.unread-badge {
-    background-color: red;
-    color: white;
-    border-radius: 50%;
-    width: 10px;
-    height: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 12px;
-}
-</style>
+  }
+  
+  .unread-badge {
+      /*margin-left: auto;  让未读标记靠右 */
+      align-self: flex-start; /* 未读标记垂直居顶 */
+  }
+  
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    .last-message {
+      max-width: 150px; /* 在小屏幕上进一步限制最大宽度 */
+    }
+  }
+  </style>

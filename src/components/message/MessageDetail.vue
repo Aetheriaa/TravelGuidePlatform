@@ -1,4 +1,5 @@
 <template>
+  <Header />
     <div class="message-detail">
       <h2>与 {{ otherUser.username }} 的私信</h2>
   
@@ -32,9 +33,12 @@
   
       <MessageForm :receiver-id="otherUser.id" @message-sent="fetchMessages" />
     </div>
+  <Footer />
   </template>
   
   <script setup>
+  import Header from '@/components/layout/Header.vue';
+  import Footer from '@/components/layout/Footer.vue';
   import { ref, onMounted, computed } from 'vue';
   import { getConversation, deleteMessage } from '@/api/message';
   import { useRoute } from 'vue-router';

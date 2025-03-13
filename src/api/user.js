@@ -108,3 +108,12 @@ export function getFollowingCount(userId) {
 export function getFollowerCount(userId) {
     return axios.get(`${baseURL}/${userId}/followers/count`);
 }
+
+// 搜索用户
+export function searchUsers(keyword) {
+    return axios.get(`${baseURL}/search`, {
+        params: {
+            keyword
+        }
+    });
+}

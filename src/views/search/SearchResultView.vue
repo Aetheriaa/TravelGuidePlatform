@@ -48,17 +48,30 @@
                         </div>
 
                     </el-tab-pane>
-                    <!-- 如果需要，可以添加搜索用户的标签页 -->
-                    <!-- <el-tab-pane label="用户" name="users">
-                <div v-if="users.length > 0">
-                  <ul>
-                    <li v-for="user in users" :key="user.id">{{ user.username }}</li>
-                  </ul>
-                </div>
-                <div v-else>
-                  <p>没有找到相关的用户。</p>
-                </div>
-              </el-tab-pane> -->
+                    <!-- 添加搜索用户的标签页 -->
+                    <el-tab-pane label="用户" name="users">
+                        <div v-if="users.length > 0">
+                            <el-row :gutter="20">
+                                <el-col :xs="24" :sm="12" :md="8" :lg="6" v-for="user in users" :key="user.id">
+                                    <div class="user-card">
+                                        <!-- 使用 router-link 将整个用户卡片区域包裹起来 -->
+                                        <router-link :to="{ name: 'UserProfile', params: { userId: user.id } }">
+                                            <!-- 显示用户信息，例如用户名、头像等 -->
+                                            <img v-if="user.avatar" :src="user.avatar" :alt="user.username"
+                                                class="user-avatar">
+                                            <div v-else class="user-avatar"></div>
+                                            <div>用户名:{{ user.username }}</div>
+                                            <div v-if="user.nickname">昵称:{{ user.nickname }}</div>
+                                            <!-- 可以根据需要显示更多信息 -->
+                                        </router-link>
+                                    </div>
+                                </el-col>
+                            </el-row>
+                        </div>
+                        <div v-else>
+                            <p>没有找到相关的用户。</p>
+                        </div>
+                    </el-tab-pane>
                 </el-tabs>
             </el-card>
         </div>
@@ -71,6 +84,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { searchGuides } from '@/api/guide'; // 导入搜索攻略的 API
 import { searchProducts } from '@/api/product'; // 导入搜索产品的 API
+import { searchUsers } from '@/api/user'
 import GuideCard from '@/components/guide/GuideCard.vue';
 import ProductCard from '@/components/product/ProductCard.vue';
 import Header from '@/components/layout/Header.vue';
@@ -82,7 +96,7 @@ const keyword = ref('');
 const activeTab = ref('guides'); // 默认显示攻略标签页
 const guides = ref([]);
 const products = ref([]);
-// const users = ref([]); // 如果需要搜索用户
+const users = ref([]); // 新增：用于存储搜索到的用户
 
 //分页
 const guidePage = ref(1)
@@ -119,14 +133,14 @@ const search = () => {
             console.error("Error searching products:", error);
         });
 
-    // 如果需要，搜索用户
-    // searchUsers(keyword.value)
-    //   .then(response => {
-    //     users.value = response.data;
-    //   })
-    //   .catch(error => {
-    //     console.error("Error searching users:", error);
-    //   });
+    // 搜索用户
+    searchUsers(keyword.value)
+        .then(response => {
+            users.value = response.data.data; // 假设后端返回用户列表
+        })
+        .catch(error => {
+            console.error("Error searching users:", error);
+        });
 };
 
 onMounted(() => {

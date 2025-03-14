@@ -1,11 +1,20 @@
 import axios from 'axios';
-
+import qs from 'qs'
 const baseURL = '/api/v1/guides';
 
-// 获取攻略列表
 export function getGuideList(params) {
-    return axios.get(`${baseURL}`, { params });
+    return axios.get(`${baseURL}`, {
+        params,
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        },
+        paramsSerializer: params => {
+            // 使用 qs 库将参数序列化为逗号分隔的字符串
+            return qs.stringify(params, { arrayFormat: 'comma' });
+        }
+    });
 }
+
 
 // 获取攻略详情
 export function getGuideDetail(id) {
@@ -143,5 +152,13 @@ export function getUserFavoritedGuides(params) {
             Authorization: `Bearer ${localStorage.getItem('token')}`
         },
         params
+    });
+}
+
+export function getPopularTags(limit = 100) { // 添加默认值
+    return axios.get(`/api/v1/guides/popular-tags`, {
+        params: {
+            limit // 限制返回的标签数量
+        }
     });
 }

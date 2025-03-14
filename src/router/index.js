@@ -31,6 +31,11 @@ import OrderDetailView from '@/views/order/OrderDetailView.vue';
 import FollowingList from '@/components/user/FollowingList.vue';
 import FollowerList from '@/components/user/FollowerList.vue';
 
+import TopicListView from '@/views/topic/TopicListView.vue';
+import TopicDetailView from '@/views/topic/TopicDetailView.vue';
+import TopicCreateView from '@/views/topic/TopicCreateView.vue';
+import TopicUpdateView from '@/views/topic/TopicUpdateView.vue';
+
 const routes = [
     {
         path: '/register',
@@ -212,6 +217,43 @@ const routes = [
         component: FollowerList,
         meta: { requiresAuth: true } // 需要登录
     },
+    {
+        path: '/popular-tags',
+        name: 'PopularTags',
+        component: () => import('@/components/guide/PopularTagsView.vue') // 热门标签页
+    },
+    // 攻略列表页的路由添加 tag 参数 (如果还没有)
+    {
+        path: '/guides',
+        name: 'GuideList',
+        component: GuideListView,
+        props: (route) => ({ tag: route.query.tag }) // 将 tag 参数作为 props 传递
+    },
+    {
+        path: '/topics',
+        name: 'TopicList',
+        component: TopicListView
+    },
+    {
+        path: '/topics/:id',
+        name: 'TopicDetail',
+        component: TopicDetailView,
+        props: true // 将路由参数作为 props 传递给组件
+    },
+    {
+        path: '/topics/create',
+        name: 'TopicCreate',
+        component: TopicCreateView,
+        meta: { requiresAuth: true } // 需要登录
+    },
+    {
+        path: '/topics/:id/update',
+        name: 'TopicUpdate',
+        component: TopicUpdateView,
+        props: true,
+        meta: { requiresAuth: true } // 需要登录
+    },
+
 ];
 
 const router = createRouter({

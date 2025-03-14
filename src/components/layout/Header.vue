@@ -28,6 +28,12 @@
             <router-link :to="{ name: 'ItineraryList' }" class="nav-link">
                 行程
             </router-link>
+            <router-link :to="{ name: 'PopularTags' }" class="nav-link">
+                热门标签
+            </router-link>
+            <router-link :to="{ name: 'TopicList' }" class="nav-link">
+                论坛
+            </router-link>
         </div>
 
         <div class="user-actions">
@@ -57,8 +63,7 @@
                                     class="dropdown-link">我的收藏</router-link>
                             </el-dropdown-item>
                             <el-dropdown-item>
-                                <router-link :to="{ name: 'MessageList' }"
-                                    class="dropdown-link">我的消息</router-link>
+                                <router-link :to="{ name: 'MessageList' }" class="dropdown-link">我的消息</router-link>
                             </el-dropdown-item>
                             <el-dropdown-item @click="handleLogout">退出登录</el-dropdown-item>
                         </el-dropdown-menu>

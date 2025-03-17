@@ -124,6 +124,8 @@ const fetchTopics = () => {
     .finally(() => {
       loading.value = false;
     });
+
+    
 };
 
 const handleSizeChange = val => {

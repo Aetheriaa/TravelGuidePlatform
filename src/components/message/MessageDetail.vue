@@ -141,9 +141,6 @@
       border: 1px solid #e0e0e0;
       border-radius: 15px 15px 15px 0; /* 右下角不变 */
   }
-  .message-received {
-    /* 对方发送的消息靠左 */
-  }
   .message-bubble {
       max-width: 70%;
       padding: 10px;

@@ -1,8 +1,13 @@
 <template>
-        <TopicDetail></TopicDetail>
+    <Header />
+    <TopicDetail></TopicDetail>
+    <Footer />
 </template>
 
 <script setup>
+
+import Header from '@/components/layout/Header.vue';
+import Footer from '@/components/layout/Footer.vue';
 import { ref, onMounted } from 'vue';
 import { getTopicDetail } from '@/api/topic'; // 导入 API
 import { useRoute } from 'vue-router';

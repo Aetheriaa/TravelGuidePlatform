@@ -17,7 +17,8 @@
 
                     <el-form-item label="封面" prop="coverImage" class="form-item">
                         <div class="cover-image-upload">
-                            <el-upload class="avatar-uploader" action="/api/guide/upload-cover-image"
+                            <!-- 修改 action 属性 -->
+                            <el-upload class="avatar-uploader" action="/api/v1/guides/upload-cover-image"
                                 :show-file-list="false" :on-success="handleCoverImageSuccess"
                                 :before-upload="beforeCoverImageUpload" :headers="getHeaders"
                                 :on-error="handleCoverImageError">
@@ -33,7 +34,6 @@
                     </el-form-item>
 
                     <el-form-item label="内容" prop="content" class="form-item">
-                        <!-- 使用 v-html 显示解析后的 Markdown 内容 -->
                         <el-input type="textarea" v-model="guide.content" placeholder="请输入攻略内容" rows="6"
                             clearable></el-input>
                         <!-- <div class="preview" v-html="parsedContent"></div> -->
@@ -41,10 +41,13 @@
 
                     <el-form-item label="标签" prop="tags" class="form-item">
                         <el-select v-model="guide.tags" multiple placeholder="选择标签" clearable filterable allow-create
-                            default-first-option @change="handleTagChange">
+                            default-first-option ref="tagSelect" @change="handleTagChange">
                             <el-option v-for="item in tagOptions" :key="item.value" :label="item.label"
                                 :value="item.value" />
                         </el-select>
+                        <el-button type="primary" size="small" @click="generateTags">
+                            自动生成标签
+                        </el-button>
                     </el-form-item>
 
                     <el-form-item class="form-item">
@@ -58,7 +61,6 @@
                 </el-form>
             </el-card>
         </div>
-
     </div>
 </template>
 
@@ -66,20 +68,17 @@
 import { reactive, ref, defineProps, defineEmits, onMounted, computed } from 'vue';
 import { ElMessage, ElLoading } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
-// import { marked } from 'marked'; // 引入 marked 库
-// import DOMPurify from 'dompurify'; //引入dompurify
-// import hljs from 'highlight.js'; // 引入 highlight.js
-// import 'highlight.js/styles/atom-one-dark.css'; // 引入样式, 可以选择其他样式
+import { extractTags } from "@/api/guide";
 
 const guideFormRef = ref(null);
 const loading = ref(false);
-
+const tagSelect = ref(null);
 const props = defineProps({
     isEdit: {
         type: Boolean,
         default: false,
     },
-    guideData: {
+    guideData: { // 用于编辑模式下传递初始数据
         type: Object,
         default: () => ({}),
     },
@@ -91,7 +90,7 @@ const guide = reactive({
     title: '',
     content: '',
     coverImage: '',
-    tags: [], // 直接使用 guide.tags 存储标签数组
+    tags: [], //直接用这个来存储
 });
 
 // 标签选项, 可根据需要修改
@@ -105,8 +104,26 @@ const tagOptions = ref([
     { value: '自然', label: '自然' }
 ]);
 
+const handleTagChange = (newValue, oldValue) => {
+    // 判断是否新增了标签 (newValue 的长度大于 oldValue 的长度)
+    if (newValue && oldValue && newValue.length > oldValue.length) {
+        // 获取 el-select 组件的输入框元素
+        const inputElement = tagSelect.value?.input;
+        if (inputElement) {
+            inputElement.value = ''; // 清空输入框的值 (原生 DOM 属性)
+        }
+    } else if (newValue && oldValue === undefined && newValue.length === 1) {
+        // 处理初始添加第一个自定义标签的情况
+        const inputElement = tagSelect.value?.input;
+        if (inputElement) {
+            inputElement.value = '';
+        }
+    }
+};
+
 onMounted(() => {
     if (props.isEdit) {
+        // 将传入的 guideData 复制到响应式对象 guide 中
         const guideDataCopy = JSON.parse(JSON.stringify(props.guideData));
         Object.assign(guide, guideDataCopy);
         // 如果 tags 是字符串，则分割为数组
@@ -122,19 +139,16 @@ const rules = reactive({
         { max: 255, message: '攻略标题长度不能超过 255 个字符', trigger: 'blur' }
     ],
     content: [{ required: true, message: '请输入攻略内容', trigger: 'blur' }],
-    coverImage: [{ required: true, message: '请上传封面图片', trigger: 'blur' }],
+    coverImage: [{ required: false, message: '请上传封面图片', trigger: 'blur' }],
     tags: [ // 添加对 tags 的校验
         { type: 'array', required: true, message: '请至少选择一个标签', trigger: 'change' },
     ],
 });
 
 const submitForm = () => {
-    // guide.tags = guide.selectedTags.join(','); // 不需要了
     guideFormRef.value?.validate((valid) => {
         if (valid) {
-            // 在向后端发送之前，将标签数组转换为逗号分隔的字符串
-            const guideData = { ...guide, tags: guide.tags.join(',') };
-            emit('submit', guideData); // 现在 tags 是字符串
+            emit('submit', guide); // 直接发送 guide 对象
         }
     });
 };
@@ -145,7 +159,7 @@ const cancel = () => {
 
 // 上传封面图片相关
 const handleCoverImageSuccess = (response, file) => {
-    guide.coverImage = response.data.url; //假设后端返回的是{data: {url: 'xxx'}}
+    guide.coverImage = response.data.url;//假设后端返回的是{data: {url: 'xxx'}}
     loading.value = false;
     ElMessage.success('封面图片上传成功!')
 };
@@ -166,7 +180,7 @@ const beforeCoverImageUpload = (file) => {
     if (!isLt2M) {
         ElMessage.error('上传封面图片大小不能超过 2MB!');
     }
-    loading.value = true;
+    loading.value = true; // 开始上传时显示加载状态
     return isJPG && isLt2M;
 };
 // 添加请求头，用于传递token
@@ -177,27 +191,21 @@ const getHeaders = computed(() => {
     };
 })
 
-//处理标签选中
-const handleTagChange = (value) => {
-    // guide.selectedTags = value; // 更新选中的标签
-    guide.tags = value;
-}
-
-// Markdown 解析 + 代码高亮, 不需要可以删除
-// marked.setOptions({
-//     renderer: new marked.Renderer(),
-//     highlight: function (code, lang) {
-//         const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-//         return hljs.highlight(code, { language }).value;
-//     },
-//     langPrefix: 'hljs language-', // 让高亮的语言添加 'hljs language-' 类
-//     breaks: true, // 启用换行符解析
-// });
-
-// const parsedContent = computed(() => {
-//     const dirty = marked(guide.content);
-//     return DOMPurify.sanitize(dirty);
-// });
+//自动生成标签
+const generateTags = async () => {
+    try {
+        const response = await extractTags({ content: guide.content });
+        if (response.data && response.data.data) {
+            // 使用 Set 去重，并保留原有标签
+            const newTags = new Set([...guide.tags, ...response.data.data]);
+            guide.tags = Array.from(newTags); // 更新标签
+            ElMessage.success("标签提取成功！");
+        }
+    } catch (error) {
+        console.error("Error extracting tags:", error);
+        ElMessage.error("标签提取失败");
+    }
+};
 
 </script>
 
@@ -295,7 +303,5 @@ const handleTagChange = (value) => {
     justify-content: flex-end;
     gap: 10px;
 }
-
-/* Markdown 编辑器和预览 */
 
 </style>

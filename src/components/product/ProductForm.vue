@@ -33,11 +33,22 @@
         </el-form-item>
 
         <el-form-item label="产品图片" prop="image">
-            <el-upload class="upload-demo" action="#" :http-request="uploadImage" list-type="picture-card" :limit="1"
+            <!-- <el-upload class="upload-demo" action="#" :http-request="uploadImage" list-type="picture-card" :limit="1"
                 :on-preview="handlePictureCardPreview" :on-remove="handleRemove" :file-list="fileList">
                 <el-icon>
                     <Plus />
                 </el-icon>
+                <template #file="{ file }">
+                    <img class="el-upload-list-cover-content" :src="file.url" alt="" />
+                </template>
+            </el-upload> -->
+            <el-upload class="upload-demo" action="/api/v1/guides/upload-cover-image"
+                :on-success="handleCoverImageSuccess" :on-error="handleCoverImageError"
+                :before-upload="beforeCoverImageUpload" :headers="getHeaders" :limit="1" v-model:file-list="fileList"
+                list-type="picture-card" :on-preview="handlePictureCardPreview" :on-remove="handleRemove">
+                <el-icon>
+                    <Plus />
+                </el-icon> <!--这里可以根据你的需要进行修改-->
                 <template #file="{ file }">
                     <img class="el-upload-list-cover-content" :src="file.url" alt="" />
                 </template>
@@ -55,7 +66,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, defineProps, defineEmits, onMounted } from 'vue';
+import { ref, reactive, defineProps, defineEmits, onMounted, computed } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
 const props = defineProps({
@@ -120,20 +131,68 @@ onMounted(() => {
     }
 });
 
-//  图片上传功能
+// //  图片上传功能
+// const dialogImageUrl = ref('');
+// const dialogVisible = ref(false);
+// const fileList = ref([]); //  用于 el-upload 的 file-list
+
+// 用于控制加载状态
+const loading = ref(false);
+
+// 图片上传相关的变量和方法
 const dialogImageUrl = ref('');
 const dialogVisible = ref(false);
-const fileList = ref([]); //  用于 el-upload 的 file-list
+const fileList = ref([]); // 用于 el-upload 的 file-list
 
-const handlePictureCardPreview = (file) => {
-    dialogImageUrl.value = file.url;
-    dialogVisible.value = true;
+// const handlePictureCardPreview = (file) => {
+//     dialogImageUrl.value = file.url;
+//     dialogVisible.value = true;
+// };
+
+// 上传成功的回调
+const handleCoverImageSuccess = (response, file) => {
+    // 假设你的后端返回的数据结构是 { data: { url: '...' } }
+    product.image = response.data.url; // 更新 product.image
+    loading.value = false;
+    ElMessage.success('图片上传成功');
 };
 
 const handleRemove = (file) => {
     fileList.value = []; // 移除后清空 fileList
     product.image = ''; //  同时清空 product.image
 };
+
+// 上传之前的钩子，用于校验文件类型和大小
+const beforeCoverImageUpload = (file) => {
+    const isJPG = file.type === 'image/jpeg' || file.type === 'image/png';
+    const isLt2M = file.size / 1024 / 1024 < 2;
+
+    if (!isJPG) {
+        ElMessage.error('上传封面图片只能是 JPG/PNG 格式!');
+    }
+    if (!isLt2M) {
+        ElMessage.error('上传封面图片大小不能超过 2MB!');
+    }
+    loading.value = true; // 开始上传时显示加载状态
+    return isJPG && isLt2M;
+};
+const handleCoverImageError = () => {
+    loading.value = false;
+    ElMessage.error('上传失败')
+}
+// 预览图片
+const handlePictureCardPreview = (file) => {
+    dialogImageUrl.value = file.url;
+    dialogVisible.value = true;
+};
+
+// 添加请求头，用于传递token
+const getHeaders = computed(() => {
+    const token = localStorage.getItem('token'); // 从 localStorage 获取 token
+    return {
+        Authorization: token ? `Bearer ${token}` : '',
+    };
+})
 
 const uploadImage = (param) => {
     //  TODO:  在这里实现图片上传的逻辑，你需要调用你的后端图片上传接口

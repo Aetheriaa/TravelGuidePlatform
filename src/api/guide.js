@@ -162,3 +162,11 @@ export function getPopularTags(limit = 100) { // 添加默认值
         }
     });
 }
+
+export function extractTags(data) {
+    return axios.post(`${baseURL}/extract-tags`, data, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}` // 可能不需要token, 根据你的后端
+        }
+    });
+}

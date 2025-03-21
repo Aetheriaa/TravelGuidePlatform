@@ -117,3 +117,13 @@ export function searchUsers(keyword) {
         }
     });
 }
+
+// 发送邮箱验证码
+export function sendVerificationCode(email) {
+    return axios.post('/api/v1/users/send-verification-code', {email});
+}
+
+// 重置密码
+export function resetPassword(data) {
+    return axios.post('/api/v1/users/reset-password', data);
+}

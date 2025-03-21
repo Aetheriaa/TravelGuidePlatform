@@ -4,6 +4,7 @@ import Register from '@/components/user/Register.vue';
 import Login from '@/components/user/Login.vue';
 import UserInfo from '@/components/user/UserInfo.vue';
 import UserUpdate from '@/components/user/UserUpdate.vue';
+import ForgotPassword from '../components/user/ForgotPassword.vue';
 import { useUserStore } from '@/stores/user';
 
 // 导入攻略相关的路由组件
@@ -252,6 +253,12 @@ const routes = [
         component: TopicUpdateView,
         props: true,
         meta: { requiresAuth: true } // 需要登录
+    },
+    {
+        path: '/forgot-password',
+        name: 'forgotPassword',
+        component: ForgotPassword,
+        props: true,
     },
 
 ];

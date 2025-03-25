@@ -127,3 +127,8 @@ export function sendVerificationCode(email) {
 export function resetPassword(data) {
     return axios.post('/api/v1/users/reset-password', data);
 }
+
+// 获取验证码图片
+export function getCaptcha() {
+    return axios.get('/api/v1/users/captcha');
+}

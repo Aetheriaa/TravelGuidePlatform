@@ -10,7 +10,7 @@
                     <!-- 头像和基本信息 -->
                     <div class="user-avatar-container">
                         <el-avatar :size="120" :src="user.avatar || defaultAvatar" class="user-avatar">
-                            <img src="../assets/default_avatar.jpg" />
+                            <img :src="defaultAvatar" />
                         </el-avatar>
                     </div>
 

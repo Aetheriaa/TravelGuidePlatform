@@ -5,8 +5,8 @@
 </template>
 
 <script setup>
-  import Header from '@/components/layout/Header.vue';
-  import Footer from '@/components/layout/Footer.vue';
+import Header from '@/components/layout/Header.vue';
+ import Footer from '@/components/layout/Footer.vue';
 import { ref, onMounted, reactive } from 'vue';
 import { getTopicList } from '@/api/topic';
 import { formatDate } from '@/utils/date'; // 导入日期格式化函数

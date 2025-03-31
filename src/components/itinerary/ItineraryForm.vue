@@ -1,5 +1,4 @@
 <template>
-    <Header />
     <h2>创建行程</h2>
     <el-form :model="itinerary" :rules="rules" ref="formRef" label-width="120px">
         <el-form-item label="行程名称" prop="name">
@@ -36,12 +35,9 @@
             <el-button @click="cancelForm">取消</el-button>
         </el-form-item>
     </el-form>
-    <Footer />
 </template>
 
 <script setup>
-import Header from '@/components/layout/Header.vue'
-import Footer from '@/components/layout/Footer.vue'
 import { ref, reactive, defineProps, defineEmits, onMounted } from 'vue';
 import ItineraryDetailForm from './ItineraryDetailForm.vue'; // 导入行程详情表单组件
 

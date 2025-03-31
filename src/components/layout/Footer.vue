@@ -2,13 +2,6 @@
     <footer class="custom-footer">
         <div class="footer-content">
             <div class="footer-links">
-                <!-- <router-link :to="{ name: 'About' }" class="footer-link">关于我们</router-link>
-                <span class="separator">|</span>
-                <router-link :to="{ name: 'Contact' }" class="footer-link">联系我们</router-link>
-                <span class="separator">|</span>
-                <router-link :to="{ name: 'Terms' }" class="footer-link">用户协议</router-link>
-                <span class="separator">|</span>
-                <router-link :to="{ name: 'Privacy' }" class="footer-link">隐私政策</router-link> -->
                 <router-link :to="{ name: 'HomeView' }" class="footer-link">关于我们</router-link>
                 <span class="separator">|</span>
                 <router-link :to="{ name: 'HomeView' }" class="footer-link">联系我们</router-link>

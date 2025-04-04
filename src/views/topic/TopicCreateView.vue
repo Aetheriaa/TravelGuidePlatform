@@ -1,7 +1,6 @@
 <template>
     <Header />
     <div class="topic-create-view">
-        <h2>发布主题</h2>
         <TopicForm @submit="handleSubmit" @cancel="handleCancel" />
     </div>
     <Footer />

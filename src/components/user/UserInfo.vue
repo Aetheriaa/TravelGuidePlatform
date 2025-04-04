@@ -85,7 +85,7 @@
     </div>
      <div v-else class="loading">
         <!-- 可以添加一个加载状态或提示 -->
-        加载中... 或 请先登录
+        加载中...
     </div>
 </template>
 

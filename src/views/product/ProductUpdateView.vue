@@ -1,4 +1,5 @@
 <template>
+    <Header />
     <div class="product-view">
         <h2>编辑产品信息</h2>
         <ProductForm v-if="product && product.id" :isEdit="true" :productData="product" @submit="handleSubmit"
@@ -7,9 +8,13 @@
             加载产品信息中...
         </div>
     </div>
+    <Footer />
 </template>
 
 <script setup>
+import Header from '@/components/layout/Header.vue';
+import Footer from '@/components/layout/Footer.vue';
+
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import ProductForm from '@/components/product/ProductForm.vue';

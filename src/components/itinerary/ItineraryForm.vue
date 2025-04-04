@@ -1,5 +1,4 @@
 <template>
-    <h2>创建行程</h2>
     <el-form :model="itinerary" :rules="rules" ref="formRef" label-width="120px">
         <el-form-item label="行程名称" prop="name">
             <el-input v-model="itinerary.name" placeholder="请输入行程名称"></el-input>

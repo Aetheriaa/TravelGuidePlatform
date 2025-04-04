@@ -2,6 +2,7 @@
     <!-- 1. 添加 page-container 类作为 Flex 容器 -->
     <div class="page-container">
         <Header />
+        <h2>创建行程</h2>
 
         <!-- 2. 使用 main 标签包裹主要内容区域 -->
         <main class="main-content">

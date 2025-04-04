@@ -2,7 +2,6 @@
     <div class="guide-list-page">
         <Header />
         <div>
-            <h1>发布攻略</h1>
             <GuideForm @submit="handleSubmit" @cancel="handleCancel"></GuideForm>
         </div>
         <Footer />

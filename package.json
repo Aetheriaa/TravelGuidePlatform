@@ -13,6 +13,7 @@
     "@vueup/vue-quill": "^1.2.0",
     "axios": "^1.7.9",
     "dompurify": "^3.2.4",
+    "echarts": "^5.6.0",
     "element-plus": "^2.9.4",
     "highlight.js": "^11.11.1",
     "marked": "^15.0.7",

@@ -260,6 +260,12 @@ const routes = [
         component: ForgotPassword,
         props: true,
     },
+    {
+        path: '/analysis',
+        name: 'Analysis',
+        component: () => import('@/components/analysis/analysisLog.vue'),
+        meta: { requiresAuth: true } // 假设需要管理员权限
+    },
 
 ];
 

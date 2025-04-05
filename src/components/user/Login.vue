@@ -137,7 +137,7 @@ const submitForm = () => {
                 // 此处可以再次刷新验证码作为用户反馈
                 console.error('登录失败:', error); // 在控制台记录详细错误
                 // 如果 store 或 API 调用没有显示错误消息，可以在这里添加一个通用的
-                // ElMessage.error('登录失败，请检查您的凭据和验证码');
+                ElMessage.error('登录失败，请检查您的凭据和验证码');
                 fetchCaptcha(); // 登录失败后刷新验证码
             }
         } else {

@@ -2,7 +2,7 @@
     <el-header height="60px" class="custom-header">
         <div class="logo-container">
             <router-link :to="{ name: 'HomeView' }" class="logo-link">
-                <img src="@/assets/logo.jpg" alt="Logo" class="logo-img" />
+                <img src="@/assets/web_logo.jpeg" alt="Logo" class="logo-img" />
                 <span class="logo-text">旅游攻略分享平台</span>
             </router-link>
         </div>
